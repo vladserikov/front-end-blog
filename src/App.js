@@ -5,6 +5,7 @@ import blogsService from './services/blogs'
 import Blogs from './components/Blogs';
 import loginService from './services/login'
 import Notification from './components/Notification';
+import User from './components/User';
 
 const App = () => {
     const [blogs, setBlogs] = useState([])
@@ -21,8 +22,9 @@ const App = () => {
 
     useEffect(() => {
         const storageUser = window.localStorage.getItem('loginUserData')
+        console.log(JSON.parse(storageUser))
         if(storageUser){
-            setUser(storageUser)
+            setUser(JSON.parse(storageUser))
         }        
     }, [])
     const handleInput = ({target}) => {
@@ -43,7 +45,7 @@ const App = () => {
             const returnUser = await loginService.login(loginData)
             console.log(returnUser)
             setUser(returnUser)
-            window.localStorage.setItem('loginUserData', returnUser)
+            window.localStorage.setItem('loginUserData', JSON.stringify(returnUser))
         } catch ({response}) {
             console.log({response})
             console.log(response.data.error)
@@ -54,10 +56,17 @@ const App = () => {
         }
     }
 
+    const logOut = () => {
+        setUser(null)
+    }
+
     return(
         <>
             <Notification message={notification} />
-            <LoginForm handleInput={handleInput} loginUser={loginUser} />
+            {
+                user ? <User user={user} logOut={logOut} />
+                    : <LoginForm handleInput={handleInput} loginUser={loginUser} />
+            }
             <Blogs blogs={blogs} />
         </>
     )
