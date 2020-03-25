@@ -16,6 +16,8 @@ const App = () => {
     const [user, setUser] = useState(null)
     const [notification, setNotification] = useState(null)
 
+    const blogFormRef = React.createRef()
+
     useEffect(() => {
         blogsService.getAll().then(data => {
             setBlogs(data)
@@ -69,7 +71,7 @@ const App = () => {
         
         try {
             const returnBlog = await blogsService.createBlog(postSend)
-        
+            blogFormRef.current.handleVisible()
             setBlogs(blogs.concat(returnBlog))
         } catch ({response}) {
             // console.log(response)
@@ -81,7 +83,7 @@ const App = () => {
     }
 
     const toggleNewBlog = () => (
-            <Togglable labele='new blog' >
+            <Togglable labele='new blog' ref={blogFormRef} >
                 <PostForm sendPost={sendPost} />
             </Togglable>
         )
