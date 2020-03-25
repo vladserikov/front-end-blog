@@ -32,6 +32,13 @@ const App = () => {
         }        
     }, [])
 
+    const errorNotification = (response) => {
+        setNotification(response.data.error)
+        setTimeout(() => {
+            setNotification(null)
+        }, 4000);
+    }
+
     const handleInput = ({target}) => {
         if(target.name === 'username'){
             setUsername(target.value)
@@ -55,10 +62,7 @@ const App = () => {
         } catch ({response}) {
             // console.log({response})
             // console.log(response.data.error)
-            setNotification(response.data.error)
-            setTimeout(() => {
-                setNotification(null)
-            }, 4000);
+            errorNotification(response)
         }
     }
 
@@ -72,13 +76,11 @@ const App = () => {
         try {
             const returnBlog = await blogsService.createBlog(postSend)
             blogFormRef.current.handleVisible()
+            console.log(returnBlog)
             setBlogs(blogs.concat(returnBlog))
         } catch ({response}) {
             // console.log(response)
-            setNotification(response.data.error)
-            setTimeout(() => {
-                setNotification(null)
-            }, 4000);
+            errorNotification(response)
         }
     }
 
@@ -89,17 +91,22 @@ const App = () => {
         )
 
     const likePost = async (id, newObj) => {
-        console.log(id, newObj)
-        
+        // console.log(id, newObj)
         try {
-            const updateBlog = await blogsService.update(id, newObj)
-            console.log(updateBlog)
+            const updateBlog = await blogsService.updateBlog(id, newObj)
+            // console.log(updateBlog)
             setBlogs(blogs.map(blog => blog.id !== id ? blog : updateBlog))
         } catch ({response}) {
-            setNotification(response.data.error)
-            setTimeout(() => {
-                setNotification(null)
-            }, 4000);
+            errorNotification(response)
+        }
+    }
+
+    const removeBlog = async (id) => {
+        try {
+            await blogsService.dlelteBlog(id)
+            setBlogs(blogs.filter(b => b.id !== id ))
+        } catch ({response}) {
+            errorNotification(response)
         }
     }
 
@@ -115,7 +122,7 @@ const App = () => {
                 ? toggleNewBlog()
                 : null
             }
-            <Blogs blogs={blogs} likePost={likePost} />
+            <Blogs blogs={blogs} likePost={likePost} removeBlog={removeBlog} />
         </>
     )
 }
