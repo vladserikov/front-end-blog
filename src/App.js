@@ -88,6 +88,21 @@ const App = () => {
             </Togglable>
         )
 
+    const likePost = async (id, newObj) => {
+        console.log(id, newObj)
+        
+        try {
+            const updateBlog = await blogsService.update(id, newObj)
+            console.log(updateBlog)
+            setBlogs(blogs.map(blog => blog.id !== id ? blog : updateBlog))
+        } catch ({response}) {
+            setNotification(response.data.error)
+            setTimeout(() => {
+                setNotification(null)
+            }, 4000);
+        }
+    }
+
     return(
         <>
             <Notification message={notification} />
@@ -100,7 +115,7 @@ const App = () => {
                 ? toggleNewBlog()
                 : null
             }
-            <Blogs blogs={blogs} />
+            <Blogs blogs={blogs} likePost={likePost} />
         </>
     )
 }
