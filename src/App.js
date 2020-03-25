@@ -7,6 +7,7 @@ import loginService from './services/login'
 import Notification from './components/Notification';
 import User from './components/User';
 import PostForm from './components/PostForm';
+import Togglable from './components/Togglable';
 
 const App = () => {
     const [blogs, setBlogs] = useState([])
@@ -14,9 +15,6 @@ const App = () => {
     const [password, setPassword] = useState('')
     const [user, setUser] = useState(null)
     const [notification, setNotification] = useState(null)
-    const [title, setTitle] = useState('')
-    const [author, setAuthor] = useState('')
-    const [url, setUrl] = useState('')
 
     useEffect(() => {
         blogsService.getAll().then(data => {
@@ -66,21 +64,13 @@ const App = () => {
         setUser(null)
     }
 
-    const sendPost = async (e) => {
-        e.preventDefault()
-        const postSend = {
-            title,
-            author,
-            url
-        }
+    const sendPost = async (obj) => {
+        const postSend = {...obj}
         
         try {
             const returnBlog = await blogsService.createBlog(postSend)
         
             setBlogs(blogs.concat(returnBlog))
-            setAuthor('')
-            setTitle('')
-            setUrl('')
         } catch ({response}) {
             // console.log(response)
             setNotification(response.data.error)
@@ -90,15 +80,11 @@ const App = () => {
         }
     }
 
-    const handleBlogsInput = ({target}) => {
-        if(target.name === 'title'){
-            setTitle(target.value)
-        } else if(target.name === 'author'){
-            setAuthor(target.value)
-        } else if(target.name === 'url'){
-            setUrl(target.value)
-        }
-    }
+    const toggleNewBlog = () => (
+            <Togglable labele='new blog' >
+                <PostForm sendPost={sendPost} />
+            </Togglable>
+        )
 
     return(
         <>
@@ -109,13 +95,7 @@ const App = () => {
             }
             {
                 user 
-                ? <PostForm 
-                    sendPost={sendPost}
-                    handleBlogsInput={handleBlogsInput}
-                    title={title}
-                    author={author}
-                    url={url}
-                  /> 
+                ? toggleNewBlog()
                 : null
             }
             <Blogs blogs={blogs} />
